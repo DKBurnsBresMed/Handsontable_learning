@@ -103,7 +103,7 @@ server <- function(input, output, session) {
   output$final_table <- renderTable({DATA_USED()})
   #provide some visual feedback, just the sum of the columns for reference
   output$final_colsums <- renderTable({t(colSums(DATA_USED()))})
-  
+
 }
 
 shinyApp(ui = ui,server = server)
