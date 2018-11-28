@@ -37,12 +37,20 @@ ui <- fluidPage(
       inputId = "usr_file",
       label = "load file",
       accept = "text/CSV" #This is called a MIME type. basically it won't let you load in a file that isn't a csv or text
-      )
+      ),
+    #Simply multiplies the final table which is to be used in the calculations by the number the user provides (default is x1)
+    numericInput(
+      inputId = "raw_mult",
+      label = "multiply the data by:",
+      value = 1
+    ),
+    helpText("Sum of columns"),
+    tableOutput("final_colsums")
   ),
-  #main panel: just give me a table of what I've loaded, and another table after that data has been manipulated by the user!
+  #main panel: Show me a table of some placeholder or data I've loaded in, and another table after that, which is the data.frame to be used in the calculations
+  # Then show me a table with column sums
   shiny::mainPanel(
     rHandsontableOutput("Table1"),
-    #rHandsontableOutput("Table2"),
     tableOutput("final_table")
   )
 )
@@ -89,11 +97,12 @@ server <- function(input, output, session) {
   })
   
   #Keep a reactive data.frame up to date all the time! this should be the data.frame used in calculations
-  DATA_USED <- reactive({hot_to_r(input$Table1)})
+  DATA_USED <- reactive({hot_to_r(input$Table1) * input$raw_mult})
   
   #test performing numerical computation on the table - tests whether you can use the live values in the table, and shows off how it behaves!
-  output$final_table <- renderTable({DATA_USED() * 2})
-  
+  output$final_table <- renderTable({DATA_USED()})
+  #provide some visual feedback, just the sum of the columns for reference
+  output$final_colsums <- renderTable({t(colSums(DATA_USED()))})
   
 }
 
